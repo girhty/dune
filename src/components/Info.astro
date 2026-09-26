@@ -1,0 +1,231 @@
+---
+interface Props {
+  place: any;
+  instagram: any;
+}
+const { place, instagram } = Astro.props as Props;
+
+const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+---
+
+<section
+  id="visit"
+  data-surface="light"
+  class="surface-bone relative z-10 rounded-t-[2.5rem] pb-24 pt-24 sm:rounded-t-[4rem] sm:pb-32 sm:pt-32"
+  aria-labelledby="visit-heading"
+>
+  <div class="shell">
+    <div class="grid gap-14 lg:grid-cols-12 lg:gap-12">
+      <div class="lg:col-span-6">
+        <p class="eyebrow reveal text-[#8a5a2b]">Visit</p>
+        <h2
+          id="visit-heading"
+          class="display-xl reveal mt-6 text-[clamp(2.2rem,5.6vw,4rem)] text-[#0b0b0b]"
+        >
+          <span class="line-mask"><span class="reveal-line">Erbil Avenue.</span></span>
+          <span class="line-mask"><span class="reveal-line">Every night.</span></span>
+        </h2>
+
+        <p class="reveal mt-7 max-w-md text-[0.98rem] leading-relaxed text-neutral-700">
+          Walk-in only — no reservations, no queue system. Come as you are; there is always
+          a table turning over.
+        </p>
+
+        <!-- Live operating status -->
+        <div
+          class="reveal status-pill mt-9 inline-flex items-center gap-3 rounded-full border border-black/12 bg-white/60 px-5 py-3 backdrop-blur-md"
+          data-open="true"
+          data-dune-status
+          aria-live="polite"
+        >
+          <span class="dot-live" aria-hidden="true"></span>
+          <span class="text-[0.82rem] font-semibold text-[#0b0b0b]" data-status-text>
+            Open now · closes 01:00
+          </span>
+          <span class="eyebrow text-neutral-500" style="font-size:0.54rem" data-status-clock
+            >—</span
+          >
+        </div>
+
+        <!-- Operating hours table -->
+        <div class="reveal mt-10 overflow-hidden rounded-2xl border border-black/10 bg-white/55">
+          <table class="w-full text-left text-[0.85rem]">
+            <caption class="sr-only">Opening hours for Dune, Erbil Avenue</caption>
+            <tbody>
+              {
+                days.map((day, i) => (
+                  <tr
+                    class="border-b border-black/6 last:border-b-0"
+                    data-day-row={i}
+                  >
+                    <th
+                      scope="row"
+                      class="px-5 py-3 font-medium text-neutral-700"
+                    >
+                      {day}
+                    </th>
+                    <td class="px-5 py-3 text-right font-mono text-[0.8rem] text-neutral-600">
+                      09:00 — 01:00
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="lg:col-span-6">
+        <!-- Contact card -->
+        <div
+          class="reveal rounded-3xl border border-black/10 bg-white/60 p-7 backdrop-blur-md sm:p-9"
+        >
+          <p class="eyebrow text-[#8a5a2b]">Contact</p>
+
+          <dl class="mt-7 space-y-7">
+            <div>
+              <dt class="eyebrow text-neutral-500" style="font-size:0.56rem">Address</dt>
+              <dd class="mt-2.5 font-display text-[1.05rem] font-medium leading-snug text-[#0b0b0b]">
+                {place.formattedAddress}
+              </dd>
+            </div>
+            <div>
+              <dt class="eyebrow text-neutral-500" style="font-size:0.56rem">Phone</dt>
+              <dd class="mt-2.5">
+                <a
+                  href={`tel:${place.phoneIntl}`}
+                  class="link-underline font-display text-[1.05rem] font-medium text-[#0b0b0b]"
+                >
+                  {place.formattedPhoneNumber}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt class="eyebrow text-neutral-500" style="font-size:0.56rem">Instagram</dt>
+              <dd class="mt-2.5">
+                <a
+                  href={instagram.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="link-underline font-display text-[1.05rem] font-medium text-[#0b0b0b]"
+                >
+                  {instagram.handle}
+                </a>
+              </dd>
+            </div>
+          </dl>
+
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a
+              href={place.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2.5 rounded-full bg-[#0b0b0b] px-6 py-3.5 text-[0.82rem] font-semibold text-bone-100 transition hover:bg-[#2a2118]"
+            >
+              Open in Google Maps
+            </a>
+            <a
+              href={`tel:${place.phoneIntl}`}
+              class="inline-flex items-center gap-2.5 rounded-full border border-black/15 px-6 py-3.5 text-[0.82rem] font-medium text-[#0b0b0b] transition hover:border-[#8a5a2b]"
+            >
+              Call the café
+            </a>
+          </div>
+        </div>
+
+        <!-- Stylised location / map card -->
+        <div
+          class="reveal media relative mt-6 aspect-[16/11] overflow-hidden rounded-3xl border border-black/10"
+          aria-label={`Map location for ${place.name}, ${place.formattedAddress}`}
+          role="img"
+        >
+          <div class="absolute inset-0 bg-[#11100e]"></div>
+
+          <!-- abstract street grid -->
+          <div class="absolute inset-0 opacity-[0.28]" aria-hidden="true">
+            <div
+              class="absolute inset-0"
+              style="background-image:linear-gradient(rgba(247,178,103,0.35) 1px,transparent 1px),linear-gradient(90deg,rgba(247,178,103,0.35) 1px,transparent 1px);background-size:56px 56px"
+            >
+            </div>
+          </div>
+          <div
+            class="absolute left-[-10%] top-[38%] h-[6px] w-[130%] -rotate-[9deg] bg-ember-400/45"
+            aria-hidden="true"
+          >
+          </div>
+          <div
+            class="absolute left-[52%] top-[-10%] h-[130%] w-[3px] rotate-[14deg] bg-bone-100/20"
+            aria-hidden="true"
+          >
+          </div>
+
+          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+            <span class="relative mx-auto flex h-14 w-14 items-center justify-center">
+              <span class="absolute inset-0 animate-ping rounded-full bg-ember-400/30"></span>
+              <span
+                class="relative flex h-11 w-11 items-center justify-center rounded-full bg-ember-400 text-lg text-[#150d03] shadow-ember"
+                aria-hidden="true">◆</span
+            >
+            </span>
+            <p class="eyebrow mt-5 text-bone-100">Dune · دون</p>
+            <p class="mt-2 text-[0.8rem] text-bone-200/60">Erbil Avenu, Erbil 44001</p>
+            <a
+              href={place.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="link-underline mt-4 inline-block text-[0.78rem] font-medium text-ember-300"
+            >
+              Get directions →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  /* Live operating status — computed from the location's opening hours
+     (09:00 → 01:00, crossing midnight) in the visitor's local time. */
+  const OPEN_HOUR = 9;
+  const CLOSE_HOUR = 1;
+
+  const pills = document.querySelectorAll<HTMLElement>('[data-dune-status]');
+
+  const tick = () => {
+    const now = new Date();
+    const h = now.getHours() + now.getMinutes() / 60;
+    const isOpen = h >= OPEN_HOUR || h < CLOSE_HOUR;
+
+    let text: string;
+    if (isOpen) {
+      text = h >= OPEN_HOUR ? 'Open now · closes 01:00' : 'Open now · closes 01:00';
+    } else {
+      text = 'Closed · opens 09:00';
+    }
+
+    pills.forEach((pill) => {
+      pill.dataset.open = String(isOpen);
+      const label = pill.querySelector<HTMLElement>('[data-status-text]');
+      if (label) label.textContent = text;
+      const clock = pill.querySelector<HTMLElement>('[data-status-clock]');
+      if (clock) {
+        clock.textContent = now.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+    });
+
+    // Highlight today's row in the hours table
+    document.querySelectorAll<HTMLElement>('[data-day-row]').forEach((row) => {
+      const isToday = Number(row.dataset.dayRow) === now.getDay();
+      row.style.background = isToday ? 'rgba(247,178,103,0.16)' : '';
+      row.style.fontWeight = isToday ? '600' : '';
+    });
+  };
+
+  tick();
+  setInterval(tick, 30000);
+</script>

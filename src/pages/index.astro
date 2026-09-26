@@ -1,0 +1,168 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Marquee from '../components/Marquee.astro';
+import BentoGrid from '../components/BentoGrid.astro';
+import Gallery from '../components/Gallery.astro';
+import Card from '../components/Card.astro';
+import Reviews from '../components/Reviews.astro';
+import Info from '../components/Info.astro';
+import Footer from '../components/Footer.astro';
+import { brand, place, instagram, googlePhotos, menuHighlights } from '../data/content.js';
+---
+
+<Layout
+  title="Dune | دون — Café & Kitchen on Erbil Avenue"
+  description="Dune | دون — from the desert to the mountains. Specialty coffee, kitchen plates and late-night rooms on Erbil Avenue, Erbil. Open daily 09:00 — 01:00. Walk-in only."
+>
+  <Hero />
+
+  <Marquee />
+
+  <!-- ============ EXPERIENCE — warm bone surface ============ -->
+  <section
+    id="experience"
+    data-surface="light"
+    class="surface-bone relative z-10 rounded-t-[2.5rem] sm:rounded-t-[4rem]"
+  >
+    <div class="shell py-24 sm:py-32 lg:py-40">
+      <div class="grid gap-14 lg:grid-cols-12 lg:gap-10">
+        <div class="lg:col-span-5">
+          <p class="eyebrow reveal text-[#8a5a2b]">The room</p>
+          <h2 class="display-xl reveal mt-6 text-[clamp(2.4rem,6vw,4.4rem)] text-[#0b0b0b]">
+            <span class="line-mask"><span class="reveal-line">Desert silence,</span></span>
+            <span class="line-mask"><span class="reveal-line">mountain light.</span></span>
+          </h2>
+          <p class="reveal mt-8 max-w-md text-[0.98rem] leading-relaxed text-neutral-700">
+            Dune was built as a pause in the middle of Erbil Avenue — low light, deep amber,
+            and a kitchen that keeps going long after the city quiets down. Walk in, sit
+            anywhere, stay until one.
+          </p>
+
+          <dl class="reveal mt-12 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-black/10 pt-10">
+            <div>
+              <dt class="eyebrow text-neutral-500">Opens</dt>
+              <dd class="mt-3 font-display text-3xl font-semibold text-[#0b0b0b]">09:00</dd>
+            </div>
+            <div>
+              <dt class="eyebrow text-neutral-500">Closes</dt>
+              <dd class="mt-3 font-display text-3xl font-semibold text-[#0b0b0b]">01:00</dd>
+            </div>
+            <div>
+              <dt class="eyebrow text-neutral-500">Entry</dt>
+              <dd class="mt-3 font-display text-3xl font-semibold text-[#0b0b0b]">Walk-in</dd>
+            </div>
+            <div>
+              <dt class="eyebrow text-neutral-500">Community</dt>
+              <dd class="mt-3 font-display text-3xl font-semibold text-[#0b0b0b]">
+                <span
+                  class="counter"
+                  data-value="57618"
+                  data-decimals="0"
+                  aria-label="57,618 Instagram followers">57,618</span
+                >
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            {
+              googlePhotos.slice(0, 6).map((src, i) => (
+                <figure
+                  class:list={[
+                    'media group relative overflow-hidden rounded-2xl',
+                    i === 0 || i === 5 ? 'col-span-2 aspect-[16/9]' : 'aspect-[4/5]',
+                  ]}
+                  data-tilt
+                  data-intensity="6"
+                >
+                  <img
+                    src={src}
+                    alt={`Dune café interior and plate detail, Erbil — image ${i + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    referrerpolicy="no-referrer"
+                    data-loaded="false"
+                  />
+                  <figcaption class="sr-only">Dune, Erbil Avenue</figcaption>
+                </figure>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTAGRAM BENTO FEED — OLED surface ============ -->
+  <BentoGrid posts={instagram.posts} handle={instagram.handle} followers={instagram.followersCount} />
+
+  <!-- ============ KITCHEN / MENU HIGHLIGHTS — bone surface ============ -->
+  <section
+    id="menu"
+    data-surface="light"
+    class="surface-bone relative z-10 rounded-t-[2.5rem] sm:rounded-t-[4rem]"
+  >
+    <div class="shell py-24 sm:py-32 lg:py-36">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="eyebrow reveal text-[#8a5a2b]">Kitchen &amp; bar</p>
+          <h2 class="display-xl reveal mt-6 text-[clamp(2.2rem,5.4vw,4rem)] text-[#0b0b0b]">
+            <span class="line-mask"><span class="reveal-line">Four reasons</span></span>
+            <span class="line-mask"><span class="reveal-line">to stay longer.</span></span>
+          </h2>
+        </div>
+        <p class="reveal max-w-sm text-[0.95rem] leading-relaxed text-neutral-600">
+          Breakfast plates in the morning, truffle chicken at midnight. The same kitchen,
+          two entirely different moods.
+        </p>
+      </div>
+
+      <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          menuHighlights.map((item, i) => (
+            <Card
+              as="article"
+              class="group relative flex min-h-[19rem] flex-col justify-between overflow-hidden rounded-3xl border border-black/8 bg-bone-100 p-7 shadow-[0_30px_70px_-48px_rgba(0,0,0,0.55)]"
+              intensity="7"
+            >
+              <div class="tilt-inner flex h-full flex-col justify-between">
+                <div>
+                  <p class="eyebrow text-[#8a5a2b]">{item.tag}</p>
+                </div>
+                <div>
+                  <span class="text-3xl" aria-hidden="true">{item.accent}</span>
+                  <h3 class="mt-4 font-display text-2xl font-semibold leading-tight text-[#0b0b0b]">
+                    {item.title}
+                  </h3>
+                  <p class="mt-3 text-[0.88rem] leading-relaxed text-neutral-600">{item.body}</p>
+                </div>
+              </div>
+              <span
+                class="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-ember-400/0 blur-2xl transition duration-700 group-hover:bg-ember-400/40"
+                aria-hidden="true"
+              />
+            </Card>
+          ))
+        }
+      </div>
+
+      <p class="reveal mt-12 text-center text-[0.85rem] text-neutral-500">
+        Breakfast served daily 09:00 — 12:30. Kitchen and bar run until close.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ AMBIENCE GALLERY — OLED surface ============ -->
+  <Gallery photos={googlePhotos} />
+
+  <!-- ============ RATING & COMMUNITY — OLED surface ============ -->
+  <Reviews rating={place.rating} followers={instagram.followersCount} />
+
+  <!-- ============ VISIT / CONTACT — bone surface ============ -->
+  <Info place={place} instagram={instagram} />
+
+  <Footer place={place} instagram={instagram} />
+</Layout>

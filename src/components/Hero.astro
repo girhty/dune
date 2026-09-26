@@ -1,0 +1,423 @@
+---
+import { brand, place, instagram } from '../data/content.js';
+---
+
+<!--
+  Procedural 3D hero scene.
+  - Iridescent core geometry + orbital rings + satellites
+  - Cursor leaning with spring dampening
+  - Scroll-driven rotation / scale reduction / depth translation
+  - Interactive floating particle field with cursor repulsion
+-->
+<section
+  id="top"
+  data-surface="dark"
+  class="relative isolate min-h-[100svh] w-full overflow-hidden"
+>
+  <canvas
+    id="hero-canvas"
+    class="pointer-events-none absolute inset-0 h-full w-full"
+    aria-hidden="true"
+  ></canvas>
+
+  <div
+    class="pointer-events-none absolute inset-0 bg-[radial-gradient(130%_85%_at_50%_5%,transparent_0%,rgba(7,7,7,0.55)_58%,#070707_88%)]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="shell relative z-10 flex min-h-[100svh] flex-col justify-center pb-24 pt-32">
+    <div class="grid items-center gap-10 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <p class="eyebrow reveal text-ember-400">
+          Erbil Avenue · Walk-in only · 09:00 — 01:00
+        </p>
+
+        <h1 class="display-xl reveal mt-7 text-[clamp(3.6rem,15vw,11rem)] text-bone-100">
+          <span class="line-mask"><span class="reveal-line">Dune</span></span>
+        </h1>
+
+        <p class="script-accent reveal -mt-3 text-[clamp(2.6rem,7vw,4.6rem)] text-ember-400/90">
+          دون
+        </p>
+
+        <p class="reveal mt-8 max-w-xl text-[1.02rem] leading-relaxed text-bone-200/70">
+          From the desert <span aria-hidden="true">⏳</span> to the mountains
+          <span aria-hidden="true">🏔️</span>. A café and kitchen on Erbil Avenue where
+          breakfast starts at nine and the last espresso lands at one.
+        </p>
+
+        <div class="reveal mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
+          <a
+            href="#feed"
+            class="group inline-flex items-center gap-3 rounded-full bg-ember-400 px-6 py-3.5 text-sm font-semibold tracking-wide text-[#150d03] shadow-ember transition hover:bg-ember-300"
+          >
+            See the feed
+            <span
+              class="inline-block transition-transform duration-500 group-hover:translate-x-1"
+              aria-hidden="true">→</span
+            >
+          </a>
+          <a
+            href={place.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-3 rounded-full border border-bone-100/20 px-6 py-3.5 text-sm font-medium tracking-wide text-bone-100 transition hover:border-ember-400/60 hover:text-ember-300"
+          >
+            Get directions
+          </a>
+        </div>
+
+        <!-- Rating + community badges -->
+        <div class="reveal mt-12 flex flex-wrap items-center gap-x-8 gap-y-5">
+          <div class="flex items-center gap-3">
+            <span
+              class="flex h-11 w-11 items-center justify-center rounded-full border border-bone-100/15 bg-bone-100/5 text-base"
+              aria-hidden="true">★</span
+            >
+            <span class="flex flex-col leading-tight">
+              <span class="font-display text-lg font-semibold text-bone-100">
+                <span class="counter" data-value="4.5" data-decimals="1">4.5</span>
+                <span class="ml-1 text-[0.7rem] font-normal text-bone-200/50">/ 5.0</span>
+              </span>
+              <span class="eyebrow mt-1 text-bone-200/45" style="font-size:0.58rem">
+                Google reviews
+              </span>
+            </span>
+          </div>
+
+          <div class="h-9 w-px bg-bone-100/12" aria-hidden="true"></div>
+
+          <div class="flex items-center gap-3">
+            <span class="media h-11 w-11 overflow-hidden rounded-full ring-1 ring-bone-100/15">
+              <img
+                src={instagram.profilePic}
+                alt=""
+                width="88"
+                height="88"
+                loading="eager"
+                decoding="async"
+                referrerpolicy="no-referrer"
+                data-loaded="false"
+              />
+            </span>
+            <span class="flex flex-col leading-tight">
+              <span class="font-display text-lg font-semibold text-bone-100">
+                <span class="counter" data-value="57618" data-decimals="0" data-suffix="">57,618</span>
+              </span>
+              <a
+                href={instagram.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eyebrow mt-1 link-underline text-bone-200/50"
+                style="font-size:0.58rem">{instagram.handle}</a
+              >
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column intentionally open — the WebGL core occupies this space on desktop -->
+      <div class="hidden lg:col-span-5 lg:block" aria-hidden="true"></div>
+    </div>
+
+    <div
+      class="mt-16 flex items-center gap-4 text-bone-200/40"
+      aria-hidden="true"
+    >
+      <span class="eyebrow" style="font-size:0.58rem">Scroll</span>
+      <span class="relative block h-px w-24 overflow-hidden bg-bone-100/15">
+        <span class="absolute inset-y-0 left-0 w-1/2 animate-[marquee_3s_linear_infinite] bg-ember-400"></span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<script>
+  import * as THREE from 'three';
+
+  const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
+  const section = canvas?.closest('section') as HTMLElement | null;
+  const DUNE = (window as any).__DUNE__;
+
+  if (canvas && section && DUNE) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isDesktop = () => window.innerWidth >= 1024;
+
+    /* ---------- renderer / scene / camera ---------- */
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
+    camera.position.set(0, 0, 7.4);
+
+    /* ---------- procedural environment (amber → void → cool rim) ---------- */
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envCanvas = document.createElement('canvas');
+    envCanvas.width = 64;
+    envCanvas.height = 128;
+    const ectx = envCanvas.getContext('2d')!;
+    const egrad = ectx.createLinearGradient(0, 0, 0, 128);
+    egrad.addColorStop(0, '#4a3218');
+    egrad.addColorStop(0.44, '#0b0a09');
+    egrad.addColorStop(0.72, '#2a1c10');
+    egrad.addColorStop(1, '#f7b267');
+    ectx.fillStyle = egrad;
+    ectx.fillRect(0, 0, 64, 128);
+    const envSrc = new THREE.CanvasTexture(envCanvas);
+    envSrc.mapping = THREE.EquirectangularReflectionMapping;
+    envSrc.colorSpace = THREE.SRGBColorSpace;
+    scene.environment = pmrem.fromEquirectangular(envSrc).texture;
+    envSrc.dispose();
+    pmrem.dispose();
+
+    /* ---------- lighting ---------- */
+    scene.add(new THREE.AmbientLight(0x2b2118, 2.4));
+    const keyLight = new THREE.PointLight(0xffc98a, 110, 42, 2);
+    keyLight.position.set(4.5, 3.2, 4.2);
+    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0x7aa8ff, 60, 42, 2);
+    rimLight.position.set(-5, -3.2, 2.4);
+    scene.add(rimLight);
+
+    /* ---------- transform hierarchy ---------- */
+    const root = new THREE.Group();     // scroll-driven transform
+    const lean = new THREE.Group();     // cursor leaning
+    root.add(lean);
+    scene.add(root);
+
+    /* ---------- iridescent core ---------- */
+    const coreMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x161210,
+      metalness: 0.9,
+      roughness: 0.15,
+      iridescence: 1,
+      iridescenceIOR: 1.5,
+      iridescenceThicknessRange: [140, 780],
+      clearcoat: 1,
+      clearcoatRoughness: 0.12,
+      envMapIntensity: 1.5,
+    });
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.55, 3), coreMaterial);
+    lean.add(core);
+
+    /* ---------- orbital thin-film rings ---------- */
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0xf7b267,
+      transparent: true,
+      opacity: 0.6,
+    });
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.55, 0.012, 8, 240), ringMat);
+    ring.rotation.set(1.12, 0.42, 0.2);
+    lean.add(ring);
+
+    const ring2 = new THREE.Mesh(
+      new THREE.TorusGeometry(2.55 * 1.28, 0.009, 8, 240),
+      new THREE.MeshBasicMaterial({ color: 0x9fb8ff, transparent: true, opacity: 0.3 })
+    );
+    ring2.rotation.set(-0.62, 1.18, 0.5);
+    lean.add(ring2);
+
+    /* ---------- orbiting satellites ---------- */
+    const satGeo = new THREE.OctahedronGeometry(0.085, 0);
+    const satMat = new THREE.MeshPhysicalMaterial({
+      color: 0xf7b267,
+      metalness: 0.65,
+      roughness: 0.24,
+      emissive: 0x2a1a08,
+      envMapIntensity: 1.8,
+    });
+    const satellites: THREE.Mesh[] = [];
+    for (let i = 0; i < 14; i++) {
+      const m = new THREE.Mesh(satGeo, satMat);
+      m.userData = {
+        a: (i / 14) * Math.PI * 2,
+        r: 2.05 + Math.random() * 0.95,
+        y: (Math.random() - 0.5) * 2.4,
+        sp: 0.12 + Math.random() * 0.26,
+        ph: Math.random() * Math.PI * 2,
+      };
+      lean.add(m);
+      satellites.push(m);
+    }
+
+    /* ---------- floating particle field ---------- */
+    const COUNT = 900;
+    const BOUND_X = 17;
+    const BOUND_Y = 10.5;
+    const BOUND_Z = 8;
+    const positions = new Float32Array(COUNT * 3);
+    const velocities = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      const i3 = i * 3;
+      positions[i3] = (Math.random() - 0.5) * BOUND_X;
+      positions[i3 + 1] = (Math.random() - 0.5) * BOUND_Y;
+      positions[i3 + 2] = (Math.random() - 0.5) * BOUND_Z;
+      velocities[i3] = (Math.random() - 0.5) * 0.0022;
+      velocities[i3 + 1] = 0.0035 + Math.random() * 0.0085;
+      velocities[i3 + 2] = (Math.random() - 0.5) * 0.0022;
+    }
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const spriteCanvas = document.createElement('canvas');
+    spriteCanvas.width = spriteCanvas.height = 64;
+    const sctx = spriteCanvas.getContext('2d')!;
+    const sgrad = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    sgrad.addColorStop(0, 'rgba(255,231,196,1)');
+    sgrad.addColorStop(0.35, 'rgba(247,178,103,0.52)');
+    sgrad.addColorStop(1, 'rgba(247,178,103,0)');
+    sctx.fillStyle = sgrad;
+    sctx.fillRect(0, 0, 64, 64);
+    const sprite = new THREE.CanvasTexture(spriteCanvas);
+    sprite.colorSpace = THREE.SRGBColorSpace;
+
+    const particleMat = new THREE.PointsMaterial({
+      size: 0.15,
+      map: sprite,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      opacity: 0.72,
+      sizeAttenuation: true,
+      color: 0xffd9a0,
+    });
+    const field = new THREE.Points(particleGeo, particleMat);
+    scene.add(field);
+
+    /* ---------- sizing ---------- */
+    function resize() {
+      const rect = section!.getBoundingClientRect();
+      const w = Math.max(1, rect.width);
+      const h = Math.max(1, rect.height);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      root.position.x = isDesktop() ? 1.9 : 0;
+      field.position.x = isDesktop() ? 0.6 : 0;
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    /* ---------- visibility gating ---------- */
+    let visible = true;
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (entries) => {
+          visible = entries[0].isIntersecting;
+        },
+        { rootMargin: '120px' }
+      ).observe(section);
+    }
+
+    /* ---------- animation state ---------- */
+    let leanX = 0;
+    let leanY = 0;
+    let clock = 0;
+
+    const tmpVisH = () => 2 * camera.position.z * Math.tan(((camera.fov * Math.PI) / 180) / 2);
+
+    function updateParticles(s: any, dt: number) {
+      const arr = particleGeo.attributes.position.array as Float32Array;
+      const visH = tmpVisH();
+      const visW = visH * camera.aspect;
+      const mx = (s.px * visW) / 2;
+      const my = (-s.py * visH) / 2;
+      const step = Math.min(2, dt / 16.66);
+
+      for (let i = 0; i < COUNT; i++) {
+        const i3 = i * 3;
+        arr[i3] += velocities[i3] * step;
+        arr[i3 + 1] += velocities[i3 + 1] * step;
+        arr[i3 + 2] += velocities[i3 + 2] * step;
+
+        // cursor repulsion force
+        const dx = arr[i3] - mx;
+        const dy = arr[i3 + 1] - my;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 6.5) {
+          const d = Math.sqrt(d2) || 0.001;
+          const f = (1 - d / 2.55) * 0.062 * step;
+          arr[i3] += (dx / d) * f;
+          arr[i3 + 1] += (dy / d) * f;
+        }
+
+        // soft frustum boundaries / wrap
+        if (arr[i3 + 1] > BOUND_Y / 2) arr[i3 + 1] = -BOUND_Y / 2;
+        if (arr[i3] > BOUND_X / 2) arr[i3] = -BOUND_X / 2;
+        if (arr[i3] < -BOUND_X / 2) arr[i3] = BOUND_X / 2;
+        if (arr[i3 + 2] > BOUND_Z / 2) arr[i3 + 2] = -BOUND_Z / 2;
+      }
+      (particleGeo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+    }
+
+    function draw(s: any, dt: number) {
+      if (!visible) return;
+      clock += dt * 0.001;
+
+      // --- cursor leaning with spring dampening ---
+      const leanStrengthX = isDesktop() ? 0.52 : 0.34;
+      const leanStrengthY = 0.4;
+      leanX += (s.px * leanStrengthX - leanX) * 0.055;
+      leanY += (-s.py * leanStrengthY - leanY) * 0.055;
+      lean.rotation.y = leanX;
+      lean.rotation.x = leanY;
+      lean.position.x = leanX * 0.55;
+      lean.position.y = leanY * 0.4;
+
+      // --- idle rotation ---
+      core.rotation.y += 0.0022;
+      core.rotation.x += 0.0009;
+      ring.rotation.z += 0.0016;
+      ring2.rotation.z -= 0.0012;
+
+      satellites.forEach((m) => {
+        const u = m.userData as any;
+        u.a += u.sp * 0.004;
+        m.position.set(Math.cos(u.a + u.ph) * u.r, u.y + Math.sin(clock * u.sp + u.ph) * 0.32, Math.sin(u.a + u.ph) * u.r);
+        m.rotation.x += 0.01;
+        m.rotation.y += 0.014;
+      });
+
+      // --- scroll transformation: rotate, scale down, push back in depth ---
+      const p = Math.min(1, Math.max(0, s.smooth / (window.innerHeight || 800)));
+      const ease = 1 - Math.pow(1 - p, 2);
+      root.position.z = -ease * 6.2;
+      root.position.y = ease * 1.7;
+      root.rotation.y = ease * 1.15;
+      root.rotation.x = ease * 0.26;
+      root.scale.setScalar(1 - ease * 0.36);
+
+      // particle field depth drift + fade
+      field.position.z = -ease * 3.6;
+      field.position.y = ease * 0.9;
+      particleMat.opacity = 0.72 * (1 - ease * 0.75);
+
+      // key light drifts with pointer for volumetric feel
+      keyLight.position.x = 4.5 + s.px * 1.6;
+      keyLight.position.y = 3.2 - s.py * 1.4;
+
+      updateParticles(s, dt);
+      renderer.render(scene, camera);
+    }
+
+    if (reduce) {
+      root.position.x = isDesktop() ? 1.9 : 0;
+      renderer.render(scene, camera);
+      window.addEventListener('resize', () => {
+        resize();
+        renderer.render(scene, camera);
+      });
+    } else {
+      DUNE.on(draw);
+    }
+  }
+</script>

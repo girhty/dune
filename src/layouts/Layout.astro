@@ -1,0 +1,388 @@
+---
+import '../styles/global.css';
+import ShaderBackground from '../components/ShaderBackground.astro';
+import { brand, instagram } from '../data/content.js';
+
+const {
+  title = 'Dune | دون — Café & Kitchen on Erbil Avenue',
+  description = 'Dune | دون — from the desert to the mountains. Specialty coffee, kitchen plates and late-night rooms on Erbil Avenue, Erbil. Open daily 09:00 — 01:00. Walk-in only.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-surface="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#070707" />
+    <meta name="author" content="Dune | دون" />
+    <link rel="canonical" href={Astro.site} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dune | دون" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={Astro.site} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Italianno&family=Noto+Kufi+Arabic:wght@300;400;500&display=swap"
+    />
+
+    <!--
+      Central frame loop. One requestAnimationFrame for the entire page.
+      Exposes: window.__DUNE__.on(cb) -> unsubscribe, window.__DUNE__.state
+      state = { y, smooth, tx, ty, px, py, vx, vy, v, w, h }
+    -->
+    <script is:inline>
+      window.__DUNE__ = (function () {
+        var cbs = [];
+        var s = {
+          y: window.scrollY || 0,
+          smooth: window.scrollY || 0,
+          tx: 0,
+          ty: 0,
+          px: 0,
+          py: 0,
+          vx: 0,
+          vy: 0,
+          v: 0,
+          w: window.innerWidth,
+          h: window.innerHeight,
+        };
+        var reduce =
+          window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        window.addEventListener(
+          'pointermove',
+          function (e) {
+            s.tx = (e.clientX / s.w) * 2 - 1;
+            s.ty = (e.clientY / s.h) * 2 - 1;
+          },
+          { passive: true }
+        );
+        window.addEventListener(
+          'resize',
+          function () {
+            s.w = window.innerWidth;
+            s.h = window.innerHeight;
+          },
+          { passive: true }
+        );
+
+        var last = performance.now();
+        function tick(now) {
+          var dt = Math.min(48, now - last) || 16;
+          last = now;
+          var prevx = s.px,
+            prevy = s.py;
+          s.px += (s.tx - s.px) * 0.12;
+          s.py += (s.ty - s.py) * 0.12;
+          s.vx = (s.px - prevx) / dt;
+          s.vy = (s.py - prevy) / dt;
+          s.v = Math.min(1, Math.sqrt(s.vx * s.vx + s.vy * s.vy) * 46);
+          s.y = window.scrollY || window.pageYOffset || 0;
+          s.smooth += (s.y - s.smooth) * (reduce ? 1 : 0.105);
+          for (var i = 0; i < cbs.length; i++) {
+            try {
+              cbs[i](s, dt);
+            } catch (err) {
+              /* keep the loop alive */
+            }
+          }
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+
+        return {
+          state: s,
+          reduce: reduce,
+          on: function (cb) {
+            cbs.push(cb);
+            return function () {
+              var i = cbs.indexOf(cb);
+              if (i > -1) cbs.splice(i, 1);
+            };
+          },
+        };
+      })();
+    </script>
+  </head>
+
+  <body class="relative min-h-screen antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ember-400 focus:px-5 focus:py-3 focus:text-sm focus:font-medium focus:text-void"
+      >Skip to content</a
+    >
+
+    <ShaderBackground />
+
+    <!-- Fixed navigation: recolors itself based on the surface beneath it -->
+    <header class="site-header fixed inset-x-0 top-0 z-50" id="site-header">
+      <div class="shell pt-3 sm:pt-5">
+        <nav
+          aria-label="Primary"
+          class="header-shell flex items-center justify-between gap-3 rounded-full px-3 py-2 sm:px-4 sm:py-2.5"
+        >
+          <a href="#top" class="group flex items-center gap-3" aria-label="Dune — home">
+            <span
+              class="media relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-current/20"
+            >
+              <img
+                src={instagram.profilePic}
+                alt=""
+                width="72"
+                height="72"
+                loading="eager"
+                decoding="async"
+                referrerpolicy="no-referrer"
+                data-loaded="false"
+                onload="this.dataset.loaded='true'"
+                onerror="this.dataset.loaded='true';this.style.display='none'"
+              />
+            </span>
+            <span class="hidden flex-col leading-none sm:flex">
+              <span class="font-display text-[0.95rem] font-semibold tracking-[0.22em] uppercase"
+                >Dune</span
+              >
+              <span class="eyebrow mt-1 opacity-50" style="font-size:0.56rem">Erbil · 09—01</span>
+            </span>
+          </a>
+
+          <ul class="hidden items-center gap-7 text-[0.78rem] font-medium md:flex">
+            <li><a class="nav-link" href="#experience">Experience</a></li>
+            <li><a class="nav-link" href="#feed">Feed</a></li>
+            <li><a class="nav-link" href="#menu">Kitchen</a></li>
+            <li><a class="nav-link" href="#visit">Visit</a></li>
+          </ul>
+
+          <div class="flex items-center gap-2 sm:gap-3">
+            <span
+              class="status-pill hidden items-center gap-2 rounded-full border border-current/15 px-3 py-1.5 text-[0.66rem] font-medium tracking-wide sm:inline-flex"
+              data-open="true"
+              data-dune-status
+              aria-live="polite"
+            >
+              <span class="dot-live" aria-hidden="true"></span>
+              <span data-status-text>Open now</span>
+            </span>
+            <a
+              href={`tel:${instagram ? '' : ''}${'+9647744333300'}`}
+              class="rounded-full bg-ember-400 px-4 py-2 text-[0.72rem] font-semibold tracking-wide text-[#150d03] transition hover:bg-ember-300"
+              >Reserve / Call</a
+            >
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="relative z-10">
+      <slot />
+    </main>
+
+    <script>
+      /* ------------------------------------------------------------------
+         Page-wide micro-interaction runtime
+         - header surface recoloring
+         - scroll reveals
+         - digit rolling counters
+         - 3D card tilt physics (pointer tracking + spring scale)
+         - image load fade-in
+      ------------------------------------------------------------------ */
+
+      const DUNE =
+        (window as any).__DUNE__ ??
+        ({ on: () => () => {}, state: {} as any, reduce: false } as any);
+
+      /* 1. Header surface recoloring ------------------------------------ */
+      const surfaces = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-surface]')
+      );
+      const root = document.documentElement;
+      let lastProbeY = -9999;
+      const HEADER_PROBE = 74;
+
+      DUNE.on((s: any) => {
+        if (Math.abs(s.smooth - lastProbeY) < 1.5) return;
+        lastProbeY = s.smooth;
+        let active = 'dark';
+        for (const el of surfaces) {
+          const r = el.getBoundingClientRect();
+          if (r.top <= HEADER_PROBE && r.bottom > HEADER_PROBE) {
+            active = el.dataset.surface || 'dark';
+            break;
+          }
+        }
+        if (root.dataset.surface !== active) root.dataset.surface = active;
+      });
+
+      /* 2. Scroll reveals ----------------------------------------------- */
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const revealTargets = document.querySelectorAll('.reveal, .reveal-line');
+      if ('IntersectionObserver' in window && !reduce) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const el = entry.target as HTMLElement;
+                const siblings = el.parentElement
+                  ? Array.from(el.parentElement.children).filter((n) =>
+                      n.classList.contains('reveal')
+                    )
+                  : [];
+                const idx = siblings.indexOf(el);
+                if (idx > 0 && !el.style.getPropertyValue('--d')) {
+                  el.style.setProperty('--d', `${Math.min(idx * 90, 540)}ms`);
+                }
+                el.classList.add('is-visible');
+                io.unobserve(el);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.12 }
+        );
+        revealTargets.forEach((el) => io.observe(el));
+      } else {
+        revealTargets.forEach((el) => el.classList.add('is-visible'));
+      }
+
+      /* 3. Digit-rolling counters --------------------------------------- */
+      const counters = document.querySelectorAll<HTMLElement>('.counter');
+      const runCounter = (el: HTMLElement) => {
+        const target = parseFloat(el.dataset.value || '0');
+        const decimals = parseInt(el.dataset.decimals || '0', 10);
+        const prefix = el.dataset.prefix || '';
+        const suffix = el.dataset.suffix || '';
+        if (reduce) {
+          el.textContent = prefix + target.toFixed(decimals) + suffix;
+          return;
+        }
+        const dur = 1500;
+        const start = performance.now();
+        const step = (now: number) => {
+          const p = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - p, 4);
+          const val = target * eased;
+          el.textContent =
+            prefix +
+            val.toLocaleString('en-US', {
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            }) +
+            suffix;
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+      if ('IntersectionObserver' in window) {
+        const cio = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                runCounter(e.target as HTMLElement);
+                cio.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.4 }
+        );
+        counters.forEach((c) => cio.observe(c));
+      } else {
+        counters.forEach(runCounter);
+      }
+
+      /* 4. 3D card tilt physics ----------------------------------------- */
+      type TiltState = {
+        el: HTMLElement;
+        intensity: number;
+        tx: number;
+        ty: number;
+        cx: number;
+        cy: number;
+        s: number;
+        ts: number;
+        active: boolean;
+      };
+      const tilts: TiltState[] = [];
+
+      document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((el) => {
+        const st: TiltState = {
+          el,
+          intensity: parseFloat(el.dataset.intensity || '9'),
+          tx: 0,
+          ty: 0,
+          cx: 0,
+          cy: 0,
+          s: 1,
+          ts: 1,
+          active: false,
+        };
+        tilts.push(st);
+
+        el.addEventListener('pointerenter', () => {
+          st.active = true;
+          st.ts = 1.035;
+        });
+        el.addEventListener('pointerleave', () => {
+          st.active = false;
+          st.tx = 0;
+          st.ty = 0;
+          st.ts = 1;
+        });
+        el.addEventListener('pointermove', (ev) => {
+          const r = el.getBoundingClientRect();
+          st.tx = ((ev.clientX - r.left) / r.width - 0.5) * 2;
+          st.ty = ((ev.clientY - r.top) / r.height - 0.5) * 2;
+        });
+      });
+
+      if (tilts.length && !reduce) {
+        DUNE.on((_s: any, dt: number) => {
+          const k = Math.min(1, dt / 16.66) * 0.14;
+          for (const t of tilts) {
+            t.cx += (t.tx - t.cx) * k * 1.6;
+            t.cy += (t.ty - t.cy) * k * 1.6;
+            t.s += (t.ts - t.s) * k * 1.9;
+            if (
+              Math.abs(t.cx) < 0.0006 &&
+              Math.abs(t.cy) < 0.0006 &&
+              Math.abs(t.s - 1) < 0.0006 &&
+              !t.active
+            ) {
+              t.el.style.transform = '';
+              continue;
+            }
+            t.el.style.transform = `perspective(1100px) rotateX(${(
+              -t.cy * t.intensity
+            ).toFixed(3)}deg) rotateY(${(t.cx * t.intensity).toFixed(
+              3
+            )}deg) scale(${t.s.toFixed(4)})`;
+          }
+        });
+      }
+
+      /* 5. Image fade-in ------------------------------------------------ */
+      document.querySelectorAll<HTMLImageElement>('.media img').forEach((img) => {
+        const done = () => {
+          img.dataset.loaded = 'true';
+        };
+        if (img.complete && img.naturalWidth > 0) done();
+        else {
+          img.addEventListener('load', done, { once: true });
+          img.addEventListener('error', done, { once: true });
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+---
+const items = [
+  'Walk-in only',
+  'Breakfast 09:00 — 12:30',
+  'Erbil Avenue',
+  'Kitchen until 01:00',
+  'From the desert to the mountains',
+  'No rules. Just vibes.',
+];
+const loop = [...items, ...items];
+---
+
+<section
+  data-surface="dark"
+  class="marquee-wrap relative z-10 overflow-hidden border-y border-bone-100/10 bg-void-900/40 py-6 backdrop-blur-sm"
+  aria-label="Highlights"
+>
+  <div class="marquee-track items-center gap-10" aria-hidden="true">
+    {
+      loop.map((item) => (
+        <span class="flex items-center gap-10 whitespace-nowrap">
+          <span class="eyebrow text-bone-200/55">{item}</span>
+          <span class="text-ember-400/70">✦</span>
+        </span>
+      ))
+    }
+  </div>
+  <p class="sr-only">
+    Dune is walk-in only. Breakfast is served between 09:00 and 12:30. The kitchen runs
+    until 01:00 on Erbil Avenue.
+  </p>
+</section>

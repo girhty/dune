@@ -1,0 +1,161 @@
+---
+interface Post {
+  caption: string;
+  image: string;
+  likes: number;
+  comments?: number;
+}
+
+interface Props {
+  posts: Post[];
+  handle: string;
+  followers: number;
+}
+
+const { posts, handle, followers } = Astro.props as Props;
+
+// Bento rhythm — deliberate size variance for an editorial grid.
+const spans = [
+  'sm:col-span-2 sm:row-span-2',
+  'sm:col-span-1 sm:row-span-1',
+  'sm:col-span-1 sm:row-span-1',
+  'sm:col-span-2 sm:row-span-1',
+  'sm:col-span-1 sm:row-span-1',
+  'sm:col-span-1 sm:row-span-1',
+  'sm:col-span-2 sm:row-span-1',
+  'sm:col-span-1 sm:row-span-1',
+  'sm:col-span-1 sm:row-span-1',
+  'sm:col-span-2 sm:row-span-2',
+];
+
+const fmt = (n: number) =>
+  n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K` : String(n);
+---
+
+<section
+  id="feed"
+  data-surface="dark"
+  class="relative z-10 overflow-hidden bg-void-900/50 pb-24 pt-24 sm:pb-32 sm:pt-32"
+>
+  <div class="shell">
+    <div class="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="eyebrow reveal text-ember-400">Live from the room</p>
+        <h2 class="display-xl reveal mt-6 text-[clamp(2.2rem,5.8vw,4.2rem)] text-bone-100">
+          <span class="line-mask"><span class="reveal-line">The Dune</span></span>
+          <span class="line-mask"><span class="reveal-line">feed.</span></span>
+        </h2>
+      </div>
+
+      <div class="reveal flex items-center gap-4">
+        <span class="media h-14 w-14 overflow-hidden rounded-full ring-1 ring-bone-100/15">
+          <img
+            src={Astro.props.profilePic ?? ''}
+            alt=""
+            width="112"
+            height="112"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer"
+            data-loaded="false"
+          />
+        </span>
+        <div class="leading-tight">
+          <a
+            href={`https://instagram.com/${handle.replace('@', '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link-underline font-display text-base font-semibold text-bone-100"
+          >
+            {handle}
+          </a>
+          <p class="eyebrow mt-2 text-bone-200/45" style="font-size:0.58rem">
+            <span class="counter" data-value={followers} data-decimals="0">57,618</span>
+            {' '}followers
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bento grid with 3D tilt + frosted glassmorphic overlays -->
+    <ul
+      class="reveal mt-14 grid auto-rows-[168px] grid-cols-2 gap-3 sm:auto-rows-[196px] sm:grid-cols-4 sm:gap-4"
+      style="grid-auto-flow:dense"
+    >
+      {
+        posts.map((post, i) => (
+          <li
+            class:list={['tilt group relative', spans[i % spans.length]]}
+            data-tilt
+            data-intensity="8"
+          >
+            <a
+              href={`https://instagram.com/${handle.replace('@', '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="media relative block h-full w-full overflow-hidden rounded-2xl ring-1 ring-bone-100/8 sm:rounded-3xl"
+              aria-label={`Instagram post: ${post.caption}`}
+            >
+              <img
+                src={post.image}
+                alt={post.caption}
+                loading="lazy"
+                decoding="async"
+                referrerpolicy="no-referrer"
+                data-loaded="false"
+                class="group-hover:scale-[1.06]"
+              />
+
+              <!-- ambient sheen on hover -->
+              <span
+                class="pointer-events-none absolute inset-0 bg-gradient-to-t from-void-900/85 via-void-900/10 to-transparent opacity-80 transition-opacity duration-700 group-hover:opacity-100"
+                aria-hidden="true"
+              />
+
+              <!-- frosted glassmorphic caption overlay -->
+              <span
+                class="glass pointer-events-none absolute inset-x-2.5 bottom-2.5 translate-y-3 rounded-2xl p-3.5 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 sm:inset-x-3.5 sm:bottom-3.5 sm:p-4"
+              >
+                <span class="flex items-start justify-between gap-3">
+                  <span
+                    class="text-[0.78rem] font-medium leading-snug text-bone-100 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3] overflow-hidden"
+                  >
+                    {post.caption}
+                  </span>
+                  {post.likes > 0 && (
+                    <span class="flex shrink-0 items-center gap-1 text-[0.7rem] text-ember-300">
+                      <span aria-hidden="true">♥</span>
+                      {fmt(post.likes)}
+                    </span>
+                  )}
+                </span>
+                <span class="eyebrow mt-2.5 block text-bone-200/50" style="font-size:0.54rem">
+                  {handle} · Erbil
+                </span>
+              </span>
+
+              <span
+                class="absolute right-3 top-3 rounded-full border border-bone-100/15 bg-void-900/50 px-2.5 py-1 text-[0.6rem] font-medium tracking-wide text-bone-100/70 backdrop-blur-md transition duration-500 group-hover:border-ember-400/50 group-hover:text-ember-300"
+                aria-hidden="true"
+              >
+                ❒ {String(i + 1).padStart(2, '0')}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="reveal mt-12 flex justify-center">
+      <a
+        href={`https://instagram.com/${handle.replace('@', '')}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group inline-flex items-center gap-3 rounded-full border border-bone-100/18 px-7 py-3.5 text-sm font-medium text-bone-100 transition hover:border-ember-400/60 hover:text-ember-300"
+      >
+        Follow {handle}
+        <span class="transition-transform duration-500 group-hover:translate-x-1" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>

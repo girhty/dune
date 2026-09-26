@@ -1,0 +1,63 @@
+---
+interface Props {
+  place: any;
+  instagram: any;
+}
+const { place, instagram } = Astro.props as Props;
+const year = new Date().getFullYear();
+---
+
+<footer
+  data-surface="dark"
+  class="relative z-10 overflow-hidden rounded-t-[2.5rem] bg-void-900 pt-20 sm:rounded-t-[4rem] sm:pt-24"
+>
+  <div class="shell">
+    <div class="grid gap-12 border-b border-bone-100/10 pb-14 lg:grid-cols-12">
+      <div class="lg:col-span-6">
+        <p class="display-xl text-[clamp(2.6rem,8vw,5.6rem)] text-bone-100">Dune</p>
+        <p class="script-accent -mt-2 text-[3rem] text-ember-400/85">دون</p>
+        <p class="mt-6 max-w-md text-[0.92rem] leading-relaxed text-bone-200/55">
+          From the desert to the mountains. A café and kitchen on Erbil Avenue, open every
+          day from nine in the morning until one at night.
+        </p>
+      </div>
+
+      <nav class="lg:col-span-3" aria-label="Footer">
+        <p class="eyebrow text-bone-200/40">Explore</p>
+        <ul class="mt-6 space-y-3 text-[0.88rem] text-bone-200/70">
+          <li><a class="link-underline" href="#experience">Experience</a></li>
+          <li><a class="link-underline" href="#feed">Instagram feed</a></li>
+          <li><a class="link-underline" href="#menu">Kitchen &amp; bar</a></li>
+          <li><a class="link-underline" href="#visit">Visit &amp; contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="lg:col-span-3">
+        <p class="eyebrow text-bone-200/40">Find us</p>
+        <address class="mt-6 space-y-3 text-[0.88rem] not-italic text-bone-200/70">
+          <p>{place.formattedAddress}</p>
+          <p>
+            <a class="link-underline" href={`tel:${place.phoneIntl}`}
+              >{place.formattedPhoneNumber}</a
+            >
+          </p>
+          <p>
+            <a
+              class="link-underline"
+              href={instagram.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer">{instagram.handle}</a
+            >
+          </p>
+        </address>
+      </div>
+    </div>
+
+    <div
+      class="flex flex-col gap-4 py-8 text-[0.72rem] text-bone-200/40 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} Dune | دون · Erbil Avenue · Walk-in only</p>
+      <p class="font-mono tracking-wide">Open daily 09:00 — 01:00</p>
+    </div>
+  </div>
+</footer>

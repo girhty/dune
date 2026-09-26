@@ -1,0 +1,30 @@
+---
+interface Props {
+  as?: string;
+  class?: string;
+  intensity?: number | string;
+  href?: string;
+  ariaLabel?: string;
+}
+
+const {
+  as: Tag = 'div',
+  class: className = '',
+  intensity = 8,
+  href,
+  ariaLabel,
+} = Astro.props as Props;
+
+const resolved = href ? 'a' : Tag;
+---
+
+<resolved
+  href={href}
+  aria-label={ariaLabel}
+  data-tilt
+  data-intensity={intensity}
+  class:list={['tilt relative', className]}
+  style="transform-style:preserve-3d;"
+>
+  <slot />
+</resolved>
